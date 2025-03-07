@@ -1,0 +1,117 @@
+pipeline:
+  name: trigger-PR
+  identifier: triggerPR
+  projectIdentifier: DemoTx
+  orgIdentifier: default
+  tags: {}
+  description: This is a simple Pipeline that creates a local file with Terraform. However, in a container. How can we cat the content of that file?
+  properties:
+    ci:
+      codebase:
+        connectorRef: ghrepo
+        repoName: <+input>
+        build: <+input>
+  stages:
+    - stage:
+        name: Build Go App
+        identifier: Build
+        type: CI
+        spec:
+          cloneCodebase: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Run Unit Tests
+                  identifier: Run_Unit_Tests
+                  spec:
+                    connectorRef: org.DockerHub_Python
+                    image: golang:1.15
+                    shell: Sh
+                    command: |-
+                      set +e
+                      go get gotest.tools/gotestsum
+                      gotestsum --format=standard-verbose --junitfile unit-tests.xml
+                      exit 0
+                    privileged: false
+                    reports:
+                      type: JUnit
+                      spec:
+                        paths:
+                          - "*.xml"
+                  when:
+                    stageStatus: Success
+                  failureStrategies: []
+              - step:
+                  type: Run
+                  name: Go Build
+                  identifier: Go_Build
+                  spec:
+                    connectorRef: org.DockerHub_Python
+                    image: golang:1.15
+                    shell: Sh
+                    command: |-
+                      set +e
+                      go get gotest.tools/gotestsum
+                      CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -tags netgo
+                      exit 0
+                    privileged: false
+              - step:
+                  type: BuildAndPushDockerRegistry
+                  name: Build and push image to DockerHub
+                  identifier: Build_and_push_image_to_DockerHub
+                  spec:
+                    connectorRef: org.DockerHub_Python
+                    repo: harnesscertification/pr-cert183a57984b
+                    tags:
+                      - <+project.identifier>_<+pipeline.sequenceId>
+                      - latest
+                    optimize: true
+                  when:
+                    stageStatus: Success
+                  failureStrategies: []
+    - stage:
+        name: Integration tests
+        identifier: Integration_tests
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: false
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: Background
+                  name: Run server service
+                  identifier: serverservice
+                  spec:
+                    connectorRef: org.DockerHub_Python
+                    image: harnesscertification/pr-cert183a57984b:<+project.identifier>_<+pipeline.sequenceId>
+                    shell: Sh
+                    imagePullPolicy: Always
+              - step:
+                  type: Run
+                  name: curl test
+                  identifier: Run_1
+                  spec:
+                    connectorRef: org.DockerHub_Python
+                    image: curlimages/curl:7.69.1
+                    shell: Sh
+                    command: |-
+                      sleep 5
+                      curl serverservice:8080?name=cert183a57984b
+                    privileged: false
+        when:
+          pipelineStatus: All
+          condition: <+codebase.build.type> == "PR"
