@@ -36,6 +36,7 @@ pipeline:
                     shell: Sh
                     command: |-
                       set +e
+                      <+codebase.build.type>
                       go get gotest.tools/gotestsum
                       gotestsum --format=standard-verbose --junitfile unit-tests.xml
                       exit 0
@@ -47,7 +48,6 @@ pipeline:
                           - "*.xml"
                   when:
                     stageStatus: Success
-                  failureStrategies: []
               - step:
                   type: Run
                   name: Go Build
