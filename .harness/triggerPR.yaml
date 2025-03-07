@@ -32,7 +32,7 @@ pipeline:
                   name: Run Unit Tests
                   identifier: Run_Unit_Tests
                   spec:
-                    connectorRef: org.DockerHub_Python
+                    connectorRef: account.harnessImage
                     image: golang:1.15
                     shell: Sh
                     command: |-
@@ -54,7 +54,7 @@ pipeline:
                   name: Go Build
                   identifier: Go_Build
                   spec:
-                    connectorRef: org.DockerHub_Python
+                    connectorRef: account.harnessImage
                     image: golang:1.15
                     shell: Sh
                     command: |-
@@ -98,7 +98,7 @@ pipeline:
                   name: Run server service
                   identifier: serverservice
                   spec:
-                    connectorRef: org.DockerHub_Python
+                    connectorRef: account.harnessImage
                     image: harnesscertification/pr-cert183a57984b:<+project.identifier>_<+pipeline.sequenceId>
                     shell: Sh
                     imagePullPolicy: Always
@@ -107,7 +107,7 @@ pipeline:
                   name: curl test
                   identifier: Run_1
                   spec:
-                    connectorRef: org.DockerHub_Python
+                    connectorRef: account.harnessImage
                     image: curlimages/curl:7.69.1
                     shell: Sh
                     command: |-
