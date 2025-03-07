@@ -1,0 +1,15 @@
+inputSet:
+  name: trigger-PR1
+  identifier: triggerPR1
+  orgIdentifier: default
+  projectIdentifier: DemoTx
+  pipeline:
+    identifier: triggerPR
+    properties:
+      ci:
+        codebase:
+          repoName: go-pipeline-sample
+          build:
+            type: PR
+            spec:
+              number: <+trigger.prNumber>
