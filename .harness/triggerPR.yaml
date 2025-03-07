@@ -8,9 +8,10 @@ pipeline:
   properties:
     ci:
       codebase:
-        connectorRef: ghrepo
-        repoName: <+input>
+        connectorRef: account.Github_OAuth_1702454216196
+        repoName: ipreetgs/go-pipeline-sample
         build: <+input>
+        sparseCheckout: []
   stages:
     - stage:
         name: Build Go App
