@@ -77,6 +77,8 @@ pipeline:
                   when:
                     stageStatus: Success
                   failureStrategies: []
+        delegateSelectors:
+          - gcp-delegate-p
     - stage:
         name: Integration tests
         identifier: Integration_tests
@@ -116,3 +118,5 @@ pipeline:
         when:
           pipelineStatus: All
           condition: <+codebase.build.type> == "PR"
+        delegateSelectors:
+          - gcp-delegate-p
