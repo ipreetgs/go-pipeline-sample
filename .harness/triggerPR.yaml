@@ -68,7 +68,7 @@ pipeline:
                   name: Build and push image to DockerHub
                   identifier: Build_and_push_image_to_DockerHub
                   spec:
-                    connectorRef: org.DockerHub_Python
+                    connectorRef: account.harnessImage
                     repo: harnesscertification/pr-cert183a57984b
                     tags:
                       - <+project.identifier>_<+pipeline.sequenceId>
@@ -76,7 +76,6 @@ pipeline:
                     optimize: true
                   when:
                     stageStatus: Success
-                  failureStrategies: []
         delegateSelectors:
           - gcp-delegate-p
     - stage:
